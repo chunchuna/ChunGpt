@@ -1,0 +1,7 @@
+system: You are a helpful assistant.
+user: hi
+assistant: Hello! How can I assist you today?
+user: what is u name
+assistant: I am a virtual assistant, so I do not have a personal name. You can just refer to me as Assistant. How can I help you today?
+user: what are u doing
+assistant: I'm here to help you with any questions or tasks you have. Feel free to ask me anything you need assistance with.

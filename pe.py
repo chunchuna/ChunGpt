@@ -2,12 +2,12 @@ import os
 import sys
 import subprocess
 import importlib
-
+from colorama import init, Fore, Back, Style
 import time
 from datetime import datetime
 from pe_store import save_chat_record, read_chat_record
 
-
+init()  # 初始化 colorama 库
 
 REQUIRED_LIBRARIES = ['requests', 'colorama']
 
@@ -16,31 +16,13 @@ for library in REQUIRED_LIBRARIES:
         importlib.import_module(library)
     except ImportError:
         print(f"Installing {library} library...")
-        result = subprocess.run([sys.executable, "-m", "pip", "install", library])
-        if result.returncode != 0:
-            print(f"安装库 {library}失败.")
-            sys.exit(1)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", library])
 
 import requests
 import json
-from colorama import init, Fore, Back, Style
-init()  # 初始化 colorama 库
 
 API_BASE = 'https://api.closeai-asia.com/v1/chat/completions'
-API_KEY = 'sk-kn8rVHdC8NlpjrWT8gfsQawK2USx8JWMIex1Midz1GK57Ib22'
-
-def check_api_key():
-    headers = {
-        'Authorization': f'Bearer {API_KEY}',
-        'Content-Type': 'application/json',
-    }
-    data = {
-        "model": "gpt-3.5-turbo",
-        "messages": [{"role": "system", "content": "You are a helpful assistant."}]
-    }
-    response = requests.post(API_BASE, headers=headers, data=json.dumps(data))
-    return response.status_code == 200
-
+API_KEY = 'sk-kn8rVHdC8NlpjrWT8gfsQawK2USx8JWMIex1Midz1GK57Ib2'
 
 conversation_history = [
     {"role": "system", "content": "You are a helpful assistant."},
@@ -67,7 +49,6 @@ def chat_with_gpt(input_text):
     conversation_history.append({"role": "assistant", "content": assistant_response})
 
     return assistant_response
-
 
 
 def show_menu():
@@ -119,13 +100,6 @@ def modify_model_version():
 
 
 if __name__ == "__main__":
-    if not check_api_key():
-         print("你输入的API密钥无效。如果这是你第一次启动，请打开目录下的[pe.py]文件，并在其中正确配置API相关参数。")
-         print("如果你有任何问题，请查看[https://github.com/chunchuna/ChunGpt/tree/1.0.1]获取相关帮助设置，或联系纯纯。")
-
-        sys.exit(1)
-
-
     in_main = False  # 标记是否在主界面
     while True:
         input_text = input("/cd ")
