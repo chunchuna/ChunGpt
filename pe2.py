@@ -26,27 +26,32 @@ for library in REQUIRED_LIBRARIES:
 API_BASE = None
 API_KEY = None
 model_version = None
-hacker_terminal_mode =False
-
-conversation_history = [
-    {"role": "system", "content": "You are a helpful assistant."},
-]
-
+hacker_terminal_mode = False
+typewriter_effect = False
 enable_background = False
 
+conversation_history = [
+    {"role": "system", "content": "I am a good robot for u"},
+]
+
+
 def read_api_and_model_settings():
-    global API_BASE, API_KEY, model_version
+    global API_BASE, API_KEY, model_version, typewriter_effect
     try:
         with open('gpt/version.txt', 'r', encoding='utf-8') as file:
             settings = json.load(file)
             API_BASE = settings.get('api_base', API_BASE)
             API_KEY = settings.get('api_key', API_KEY)
             model_version = settings.get('model_version', model_version)
-            print(f"Settings updated: Model Version - {model_version}, API Base - {API_BASE}, API Key - {API_KEY}")
+            typewriter_effect = settings.get(
+                'typewriter_effect', typewriter_effect)
+            # print(
+            # f"Settings updated: Model Version - {model_version}, API Base - {API_BASE}, API Key - {API_KEY}, Typewriter Effect - {typewriter_effect}")
     except FileNotFoundError:
         print("No 'version.txt' found. Please make sure it exists in the 'gpt' folder.")
     except json.JSONDecodeError:
         print("Error reading 'version.txt'. Please make sure it is in valid JSON format.")
+
 
 def chat_with_gpt(input_text):
     global conversation_history, model_version, API_BASE, API_KEY
@@ -65,7 +70,12 @@ def chat_with_gpt(input_text):
     assistant_response = response_data['choices'][0]['message']['content']
     conversation_history.append(
         {"role": "assistant", "content": assistant_response})
+
+    if hacker_terminal_mode:
+        delay = read_hacker_mode_delay()
+        time.sleep(delay)
     return assistant_response
+
 
 def show_menu():
     print("=== Menu ===")
@@ -74,10 +84,10 @@ def show_menu():
     print("3. Simulator Options")
     print("4. Quit")
 
-def toggle_background():
     global enable_background
     enable_background = not enable_background
     print(f"Background is {'enabled' if enable_background else 'disabled'}.")
+
 
 def simulator_menu():
     while True:
@@ -89,11 +99,12 @@ def simulator_menu():
         if sim_choice == "1":
             toggle_hacker_mode()
         elif sim_choice == "2":
-            print("Regular Terminal Simulator - This feature is not implemented yet.")
+            break
         elif sim_choice == "3":
             break
         else:
             print("Invalid choice. Please try again.")
+
 
 def toggle_hacker_mode():
     global hacker_terminal_mode
@@ -103,19 +114,52 @@ def toggle_hacker_mode():
             with open('hck/hckcommand.txt', 'r', encoding='utf-8') as file:
                 hck_command = file.read().strip()
             chat_with_gpt(hck_command)
-            print("Hacker terminal mode is now activated.")
+            # print("Hacker terminal mode is now activated.")
         except FileNotFoundError:
             print("Activation failed, please check if 'hck/hckcommand.txt' exists.")
             hacker_terminal_mode = False
     else:
         print("Hacker terminal mode is now deactivated.")
 
+
+def read_hacker_mode_delay():
+    try:
+        with open('hck/hcktime.txt', 'r', encoding='utf-8') as file:
+            delay = file.read().strip()
+            return float(delay)
+    except FileNotFoundError:
+        print("No 'hck/hcktime.txt' found. Please make sure it exists in the 'hck' folder.")
+        return 0.0  # Default delay
+    except ValueError:
+        print("'hck/hcktime.txt' should contain a single number, representing delay in seconds.")
+        return 0.0  # Default delay
+
+
+def read_hacker_mode_default():
+    try:
+        with open('hck/hckdefault.txt', 'r', encoding='utf-8') as file:
+            default = file.read().strip().lower()
+            return default == 'true'
+    except FileNotFoundError:
+        print(
+            "No 'hck/hckdefault.txt' found. Please make sure it exists in the 'hck' folder.")
+        return False  # Default setting
+    except ValueError:
+        print("'hck/hckdefault.txt' should contain either 'true' or 'false'.")
+        return False  # Default setting
+
 if __name__ == "__main__":
     # 读取 API 和模型设置
     read_api_and_model_settings()
     in_main = False
+    # 默认启动黑客模式
+    if read_hacker_mode_default():
+        toggle_hacker_mode()
     while True:
-        input_text = input("\cd me:")
+        if hacker_terminal_mode:
+            input_text = input(Fore.RED + "[chunchun@ru >^] :" + Style.RESET_ALL)
+        else:
+            input_text = input("\cd me:")
         if input_text.lower() == "quit":
             break
         if input_text.lower() == "main":
@@ -137,12 +181,16 @@ if __name__ == "__main__":
             if input_text.strip() == "":
                 continue
             response_text = chat_with_gpt(input_text)
-            response_text = "\cd robot: " + response_text
-            for char in response_text:
-                if enable_background:
-                    sys.stdout.write(Back.WHITE + Fore.BLUE + char + Style.RESET_ALL)
-                else:
-                    sys.stdout.write(Fore.WHITE + char + Style.RESET_ALL)
+            response_text = Fore.GREEN + "[@ru.com >^] : " + Style.RESET_ALL + response_text
+            if typewriter_effect:
+                for char in response_text:
+                    sys.stdout.write(char)
+                    sys.stdout.flush()
+                    time.sleep(0.01)
+            else:
+                sys.stdout.write(response_text)
                 sys.stdout.flush()
-                time.sleep(0.01)
             print()
+
+
+

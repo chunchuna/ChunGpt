@@ -1,5 +1,6 @@
 {
     "model_version": "gpt-3.5-turbo-16k-0613",
     "api_base": "https://api.closeai-asia.com/v1/chat/completions",
-    "api_key": "sk-kn8rVHdC8NlpjrWT8gfsQawK2USx8JWMIex1Midz1GK57Ib2"
+    "api_key": "sk-kn8rVHdC8NlpjrWT8gfsQawK2USx8JWMIex1Midz1GK57Ib2",
+    "typewriter_effect":true
 }
